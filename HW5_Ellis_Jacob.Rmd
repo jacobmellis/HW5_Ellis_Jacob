@@ -616,7 +616,6 @@ rsconnect::deployApp('~/Desktop/Grad School/566 Data Visualization/HW/HW5_Ellis_
 
 ```{r}
 shiny::runGitHub("HW5_Ellis_Jacob","staa566-csu-sp2022")
-
 ```
 
 

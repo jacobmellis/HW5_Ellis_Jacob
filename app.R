@@ -490,7 +490,7 @@ medals8  <- medals8 %>%
   select(Event, Year, Nationality, Country, Medal, Name)
 medals8 <- medals8[order(-medals8$Year),]
 
-table_medals <- DT::datatable(medals8, rownames = FALSE, extensions = "Responsive")
+table_medals <- DT::datatable(medals8, extensions = "Responsive")
 table_medals
 
 medals9 <- subset(medals8, select = c(2, 1, 5, 4))
@@ -499,8 +499,7 @@ medals9 <- medals9[order(medals9$Year, medals9$Event, medals9$Medal),]
 kbl1 <- kbl(medals9, row.names = FALSE) %>%
   kable_paper(lightable_options = "hover", full_width = FALSE) %>%
   scroll_box(width = "50%", height = "300px")
-kbl1
-
+#kbl1
 
 
 ui <- dashboardPage(
