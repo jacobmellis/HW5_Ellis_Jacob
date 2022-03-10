@@ -1,24 +1,4 @@
----
-title: "HW5_Ellis_Jacob"
-author: "Jacob Ellis"
-date: "3/7/2022"
-output: html_document
-knit: (function(input_file, encoding) {
-  out_dir <- 'docs';
-  rmarkdown::render(input_file,
- encoding=encoding,
- output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
----
 
-In this project, I explored the history and breakdown of track and field medals in the Olympics from their inception through the 2016 Games. I wanted to show how various countries performed over time and in different events, and allow the viewer to interact with the data including search for specific events, years, or countries. The data was downloaded from kaggle: https://www.kaggle.com/jayrav13/olympic-track-field-results, and then renamed "olympic_medals"
-
-In the first tab of this shiny app, I showed a time series of the top five medal producing countries and opted to show both "all medals" and "gold medals" for all five, plus allowing the viewer to zoom into different eras.
-
-In the second tab, I showed maps of how dominant various countries have been in the different disciplines, divided into "sprints," "distance," and "field," as well as the combination of all events. I also included a map that eliminates all USA medals since the high historical USA medal count made it difficult to spot other patterns.
-
-In the third tab, I included an interactive table with a search bar and sorting functions to allow the viewer to look for any event, year, or name they were interested in.
-
-```{r}
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
@@ -31,16 +11,13 @@ library(shinyWidgets)
 library(dplyr)
 library(readr)
 library(ggthemes)
-library(kableExtra)
 
+library(kableExtra)
 library(ggdendro)
 library(maps)
 
 library(DT)
-```
 
-
-```{r}
 #reading in the data
 medals <- read.csv("olympic_medals.csv")
 
@@ -79,46 +56,43 @@ medals7 <- data.frame(years, nats, count, cumul, g_count, g_cumul)
 oly_years <- years[1:28]
 i <- 1896; j <- 1
 for(i in oly_years){
-     medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GBR")))
-     medals7$cumul[j] <- sum(medals7$count[1:j])
-     medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GBR") & medals6$Medal == "G"))
-     medals7$g_cumul[j] <- sum(medals7$g_count[1:j])     
-     j <- j + 1
+  medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GBR")))
+  medals7$cumul[j] <- sum(medals7$count[1:j])
+  medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GBR") & medals6$Medal == "G"))
+  medals7$g_cumul[j] <- sum(medals7$g_count[1:j])     
+  j <- j + 1
 }
 
 for(i in oly_years){
-     medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GER")))
-     medals7$cumul[j] <- sum(medals7$count[29:j])
-     medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GER") & medals6$Medal == "G"))
-     medals7$g_cumul[j] <- sum(medals7$g_count[29:j])   
-     j <- j + 1
-    }
-for(i in oly_years){
-     medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "KEN")))
-     medals7$cumul[j] <- sum(medals7$count[57:j])
-     medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "KEN") & medals6$Medal == "G"))
-     medals7$g_cumul[j] <- sum(medals7$g_count[57:j])   
-     j <- j + 1
-    }
-for(i in oly_years){
-     medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "RUS")))
-     medals7$cumul[j] <- sum(medals7$count[85:j])
-     medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "RUS") & medals6$Medal == "G"))
-     medals7$g_cumul[j] <- sum(medals7$g_count[85:j])   
-     j <- j + 1
-    }
-for(i in oly_years){
-     medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "USA")))
-     medals7$cumul[j] <- sum(medals7$count[113:j])
-     medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "USA") & medals6$Medal == "G"))
-     medals7$g_cumul[j] <- sum(medals7$g_count[113:j])   
-     j <- j + 1
+  medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GER")))
+  medals7$cumul[j] <- sum(medals7$count[29:j])
+  medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "GER") & medals6$Medal == "G"))
+  medals7$g_cumul[j] <- sum(medals7$g_count[29:j])   
+  j <- j + 1
 }
-```
+for(i in oly_years){
+  medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "KEN")))
+  medals7$cumul[j] <- sum(medals7$count[57:j])
+  medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "KEN") & medals6$Medal == "G"))
+  medals7$g_cumul[j] <- sum(medals7$g_count[57:j])   
+  j <- j + 1
+}
+for(i in oly_years){
+  medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "RUS")))
+  medals7$cumul[j] <- sum(medals7$count[85:j])
+  medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "RUS") & medals6$Medal == "G"))
+  medals7$g_cumul[j] <- sum(medals7$g_count[85:j])   
+  j <- j + 1
+}
+for(i in oly_years){
+  medals7$count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "USA")))
+  medals7$cumul[j] <- sum(medals7$count[113:j])
+  medals7$g_count[j] <- length(which((medals6$Year == i) & (medals6$Nationality == "USA") & medals6$Medal == "G"))
+  medals7$g_cumul[j] <- sum(medals7$g_count[113:j])   
+  j <- j + 1
+}
 
 
-
-```{r}
 #font size etc to use for subplot titles
 f <- list(
   family = "Courier New, monospace",
@@ -127,23 +101,23 @@ f <- list(
 
 #all medal plots
 ply_cumul <- plot_ly(medals7, 
-        x = ~years,
-        y = ~cumul,
-        color = nats,
-        type = 'scatter',
-        mode = 'lines',
-        width = 650, height = 600
-        ) %>%
+                     x = ~years,
+                     y = ~cumul,
+                     color = nats,
+                     type = 'scatter',
+                     mode = 'lines',
+                     width = 650, height = 600
+) %>%
   layout(yaxis = list(title = "Cumulative Medals"))
 
 ply_count <- plot_ly(medals7,
-          x = ~years,
-          y = ~count,
-          color = nats,
-          type = 'scatter',
-          mode = 'markers',
-          width = 650, height = 600
-          ) %>%
+                     x = ~years,
+                     y = ~count,
+                     color = nats,
+                     type = 'scatter',
+                     mode = 'markers',
+                     width = 650, height = 600
+) %>%
   layout(yaxis = list(title = "Medals per Games"))
 
 a <- list(
@@ -162,28 +136,28 @@ ply_stack <- subplot(list(ply_cumul, ply_count),
                      nrows = 2,
                      shareX = TRUE,
                      titleY = TRUE) %>%
-    layout(annotations = a,
-           showlegend = FALSE) %>%
-    rangeslider()
+  layout(annotations = a,
+         showlegend = FALSE) %>%
+  rangeslider()
 
 #Gold medal plots
 ply_cumul_g <- plot_ly(medals7, 
-        x = ~years,
-        y = ~g_cumul,
-        color = nats,
-        type = 'scatter',
-        mode = 'lines',
-        width = 650, height = 600
-        )
+                       x = ~years,
+                       y = ~g_cumul,
+                       color = nats,
+                       type = 'scatter',
+                       mode = 'lines',
+                       width = 650, height = 600
+)
 
 ply_count_g <- plot_ly(medals7,
-          x = ~years,
-          y = ~g_count,
-          color = nats,
-          type = 'scatter',
-          mode = 'markers',
-          width = 650, height = 600
-          )
+                       x = ~years,
+                       y = ~g_count,
+                       color = nats,
+                       type = 'scatter',
+                       mode = 'markers',
+                       width = 650, height = 600
+)
 b <- list(
   text = "Gold Medals",
   font = f,
@@ -197,22 +171,19 @@ b <- list(
   showarrow = FALSE)
 
 ply_stack_g <- subplot(list(ply_cumul_g, ply_count_g),
-                     nrows = 2,
-                     shareX = TRUE,
-                     titleY = FALSE)%>%
-    layout(annotations = b,
-           showlegend = FALSE) %>%
-    rangeslider()
+                       nrows = 2,
+                       shareX = TRUE,
+                       titleY = FALSE)%>%
+  layout(annotations = b,
+         showlegend = FALSE) %>%
+  rangeslider()
 
 #combining both vertical stacks
 all_ply_stack <- subplot(list(ply_stack, ply_stack_g),
                          titleY = TRUE) %>%
-         layout(showlegend = FALSE)
+  layout(showlegend = FALSE)
 #all_ply_stack
-```
 
-
-```{r}
 #adding full country name to match worldmap data
 Country <- rep(NA, times = length(medals4$Nationality))
 medals5 <- cbind(medals4, Country)
@@ -314,31 +285,31 @@ medals6 <- medals5[-which(is.na(medals5$Country)),]
 
 
 medals_dist <- medals6[(medals6$Event == "800M Women" | medals6$Event == "800M Men" |
-        medals6$Event == "1500M Women" | medals6$Event == "1500M Men" |
-        medals6$Event == "5000M Women" | medals6$Event == "5000M Men" |
-        medals6$Event == "10000M Women" | medals6$Event == "10000M Men" |
-        medals6$Event == "Marathon Women" | medals6$Event == "Marathon Men" |
-        medals6$Event == "3000M Steeplechase Women" | medals6$Event == "3000M Steeplechase Men" |
-        medals6$Event == "20Km Race Walk Women" | medals6$Event == "20Km Race Walk Men" |
-        medals6$Event == "50Km Race Walk Men"),]
+                          medals6$Event == "1500M Women" | medals6$Event == "1500M Men" |
+                          medals6$Event == "5000M Women" | medals6$Event == "5000M Men" |
+                          medals6$Event == "10000M Women" | medals6$Event == "10000M Men" |
+                          medals6$Event == "Marathon Women" | medals6$Event == "Marathon Men" |
+                          medals6$Event == "3000M Steeplechase Women" | medals6$Event == "3000M Steeplechase Men" |
+                          medals6$Event == "20Km Race Walk Women" | medals6$Event == "20Km Race Walk Men" |
+                          medals6$Event == "50Km Race Walk Men"),]
 
 medals_sprint <- medals6[(medals6$Event == "100M Women" | medals6$Event == "100M Men" |
-        medals6$Event == "200M Women" | medals6$Event == "200M Men" |
-        medals6$Event == "400M Women" | medals6$Event == "400M Men" |
-        medals6$Event == "100M Hurdles Women" | medals6$Event == "110M Hurdles Men" |
-        medals6$Event == "400M Hurdles Women" | medals6$Event == "400M Hurdles Men" |
-        medals6$Event == "4x100M Relay Women" | medals6$Event == "4x100M Relay Men" |
-        medals6$Event == "4x400M Relay Women" | medals6$Event == "4x400M Relay Men"),]
+                            medals6$Event == "200M Women" | medals6$Event == "200M Men" |
+                            medals6$Event == "400M Women" | medals6$Event == "400M Men" |
+                            medals6$Event == "100M Hurdles Women" | medals6$Event == "110M Hurdles Men" |
+                            medals6$Event == "400M Hurdles Women" | medals6$Event == "400M Hurdles Men" |
+                            medals6$Event == "4x100M Relay Women" | medals6$Event == "4x100M Relay Men" |
+                            medals6$Event == "4x400M Relay Women" | medals6$Event == "4x400M Relay Men"),]
 
 medals_field <- medals6[(medals6$Event == "Hammer Throw Women" | medals6$Event == "Hammer Throw Men" |
-        medals6$Event == "Discus Throw Women" | medals6$Event == "Discus Throw Men" |
-        medals6$Event == "Shot Put Women" | medals6$Event == "Shot Put Men" |
-        medals6$Event == "Javelin Throw Women" | medals6$Event == "Javelin Throw Men" |
-        medals6$Event == "Long Jump Women" | medals6$Event == "Long Jump Men" |
-        medals6$Event == "Triple Jump Women" | medals6$Event == "Triple Jump Men" |
-        medals6$Event == "Pole Vault Women" | medals6$Event == "Pole Vault Men" |
-        medals6$Event == "High Jump Women" | medals6$Event == "High Jump Men" |
-        medals6$Event == "Heptathlon Women" | medals6$Event == "Decathlon Men"),]
+                           medals6$Event == "Discus Throw Women" | medals6$Event == "Discus Throw Men" |
+                           medals6$Event == "Shot Put Women" | medals6$Event == "Shot Put Men" |
+                           medals6$Event == "Javelin Throw Women" | medals6$Event == "Javelin Throw Men" |
+                           medals6$Event == "Long Jump Women" | medals6$Event == "Long Jump Men" |
+                           medals6$Event == "Triple Jump Women" | medals6$Event == "Triple Jump Men" |
+                           medals6$Event == "Pole Vault Women" | medals6$Event == "Pole Vault Men" |
+                           medals6$Event == "High Jump Women" | medals6$Event == "High Jump Men" |
+                           medals6$Event == "Heptathlon Women" | medals6$Event == "Decathlon Men"),]
 
 frame_dist <- data.frame(sort(table(medals_dist$Country), decreasing = TRUE))
 frame_dist$Perc <- round(frame_dist$Freq / sum(frame_dist$Freq) * 100, 1)
@@ -364,9 +335,9 @@ result_all$Perc[is.na(result_all$Perc)] <- 0
 #plot
 plot_all <- ggplot(data = result_all, aes(long, lat, group = group, fill = Perc))
 plot_all <- plot_all + geom_polygon(color = "black", size = 0.1) + theme_dendro() +
-    scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
-    guides(fill=guide_colorbar(title="Percentage")) +
-    ggtitle("Distributation of All Olympic Track and Field Medals")
+  scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
+  guides(fill=guide_colorbar(title="Percentage")) +
+  ggtitle("Distributation of All Olympic Track and Field Medals")
 
 #DISTANCE
 result_dist <- left_join(x = worldmap, y = frame_dist, by = c("region" = "Var1"))
@@ -374,9 +345,9 @@ result_dist$Perc[is.na(result_dist$Perc)] <- 0
 #plot
 plot_dist <- ggplot(data = result_dist, aes(long, lat, group = group, fill = Perc))
 plot_dist <- plot_dist + geom_polygon(color = "black", size = 0.1) + theme_dendro() +
-    scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
-    guides(fill=guide_colorbar(title="Percentage")) +
-    ggtitle("Distributation of Olympic Track and Field Distance Event Medals")
+  scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
+  guides(fill=guide_colorbar(title="Percentage")) +
+  ggtitle("Distributation of Olympic Track and Field Distance Event Medals")
 
 #SPRINTS
 result_sprint <- left_join(x = worldmap, y = frame_sprint, by = c("region" = "Var1"))
@@ -384,9 +355,9 @@ result_sprint$Perc[is.na(result_sprint$Perc)] <- 0
 #plot
 plot_sprint <- ggplot(data = result_sprint, aes(long, lat, group = group, fill = Perc))
 plot_sprint<- plot_sprint + geom_polygon(color = "black", size = 0.1) + theme_dendro() +
-    scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
-    guides(fill=guide_colorbar(title="Percentage")) +
-    ggtitle("Distributation of Olympic Track and Field Sprint Event Medals")
+  scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
+  guides(fill=guide_colorbar(title="Percentage")) +
+  ggtitle("Distributation of Olympic Track and Field Sprint Event Medals")
 
 #FIELD
 result_field <- left_join(x = worldmap, y = frame_field, by = c("region" = "Var1"))
@@ -394,22 +365,20 @@ result_field$Perc[is.na(result_field$Perc)] <- 0
 plot_field <- ggplot(data = result_field, aes(long, lat, group = group, fill = Perc))
 #plot
 plot_field <- plot_field + geom_polygon(color = "black", size = 0.1) + theme_dendro() +
-    scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
-    guides(fill=guide_colorbar(title="Percentage")) +
-    ggtitle("Distributation of Olympic Track and Field Field Event Medals")
+  scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
+  guides(fill=guide_colorbar(title="Percentage")) +
+  ggtitle("Distributation of Olympic Track and Field Field Event Medals")
 
 result_nous <- left_join(x = worldmap, y = frame_nous, by = c("region" = "Var1"))
 result_nous$Perc[is.na(result_nous$Perc)] <- 0
 #plot
 plot_nous <- ggplot(data = result_nous, aes(long, lat, group = group, fill = Perc))
 plot_nous <- plot_nous + geom_polygon(color = "black", size = 0.1) + theme_dendro() +
-    scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
-    guides(fill=guide_colorbar(title="Percentage")) +
-    ggtitle("Distributation of Non-U.S. Olympic Track and Field Medals")
+  scale_fill_viridis(option = "magma", direction = -1, limits = c(0, 50)) +
+  guides(fill=guide_colorbar(title="Percentage")) +
+  ggtitle("Distributation of Non-U.S. Olympic Track and Field Medals")
 
-```
 
-```{r}
 medals8 <- medals[-c(156, 158, 160, 320, 322, 324, 1664, 1666, 1668, 1793, 1795, 1797),]
 medals8 <- subset(medals8, select = c(1, 2, 4, 5, 6, 7))
 medals8[1,]$Nationality <- "GBR"
@@ -521,20 +490,19 @@ medals8  <- medals8 %>%
   select(Event, Year, Nationality, Country, Medal, Name)
 medals8 <- medals8[order(-medals8$Year),]
 
-table_medals <- DT::datatable(medals8, extensions = "Responsive")
-#table_medals
+table_medals <- DT::datatable(medals8, rownames = FALSE, extensions = "Responsive")
+table_medals
 
 medals9 <- subset(medals8, select = c(2, 1, 5, 4))
-medals9 <- medals9[order(medals9["Year"], medals9["Event"], medals9["Medal"]),]
+medals9 <- medals9[order(medals9$Year, medals9$Event, medals9$Medal),]
 
 kbl1 <- kbl(medals9, row.names = FALSE) %>%
-           kable_paper(lightable_options = "hover", full_width = FALSE) %>%
-           scroll_box(width = "50%", height = "300px")
-#kbl1
-```
+  kable_paper(lightable_options = "hover", full_width = FALSE) %>%
+  scroll_box(width = "50%", height = "300px")
+kbl1
 
 
-```{r}
+
 ui <- dashboardPage(
   skin = "red",
   
@@ -554,22 +522,21 @@ ui <- dashboardPage(
     tabItems(
       #page 1
       tabItem("top_five",
-          box(plotlyOutput("all_ply_stack"), width = 500)
-     ),
-     
+              box(plotlyOutput("all_ply_stack"), width = 500)
+              
+      ),
       #page 2
       tabItem("maps",
-          box(plotOutput("plot_all"), width = 300),
-          box(plotOutput("plot_dist"), width = 300),
-          box(plotOutput("plot_sprint"), width = 300),
-          box(plotOutput("plot_field"), width = 300),
-          box(plotOutput("plot_nous"), width = 300)
+              box(plotOutput("plot_all"), width = 300),
+              box(plotOutput("plot_dist"), width = 300),
+              box(plotOutput("plot_sprint"), width = 300),
+              box(plotOutput("plot_field"), width = 300),
+              box(plotOutput("plot_nous"), width = 300)
       ),
-     
-     #page 3
-     tabItem("table_full",
-         box(DTOutput("table_medals"), width = 500)
-     )
+      #page 3
+      tabItem("table_full",
+              box(tableOutput("kbl1"), width = 500)
+      )
     )
   )
 )
@@ -601,23 +568,11 @@ server <- function(input, output) {
   })
   
   #table
- output$table_medals <- renderDT({
-    table_medals
+  output$table <- renderTable({
+    kbl1
   })
   
 }
 
 shinyApp(ui, server)
-```
-
-```{r}
-rsconnect::deployApp('~/Desktop/Grad School/566 Data Visualization/HW/HW5_Ellis_Jacob/')
-```
-
-```{r}
-shiny::runGitHub("HW5_Ellis_Jacob","staa566-csu-sp2022")
-
-```
-
-
 
