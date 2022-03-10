@@ -1,0 +1,11 @@
+name: shinyupload
+title:
+username:
+account: jacobmellis
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5820756
+bundleId: 5664859
+url: https://jacobmellis.shinyapps.io/shinyupload/
+when: 1646889084.16553
+lastSyncTime: 1646889084.16554

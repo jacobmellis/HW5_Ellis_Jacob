@@ -1,0 +1,14 @@
+name: HW5_Ellis_Jacob
+title: HW5_Ellis_Jacob
+username:
+account: jacobmellis
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5817533
+bundleId: 5664872
+url: https://jacobmellis.shinyapps.io/HW5_Ellis_Jacob/
+when: 1646889344.88667
+lastSyncTime: 1646889344.88668
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: ShinyDemo/ui.R

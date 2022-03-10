@@ -10,9 +10,15 @@ knit: (function(input_file, encoding) {
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 ---
 
-```{r setup, include=FALSE}
-#install.packages("shinydashboard")
-install.packages("shinyWidgets")
+In this project, I explored the history and breakdown of track and field medals in the Olympics from their inception through the 2016 Games. I wanted to show how various countries performed over time and in different events, and allow the viewer to interact with the data including search for specific events, years, or countries. The data was downloaded from kaggle: https://www.kaggle.com/jayrav13/olympic-track-field-results, and then renamed "olympic_medals"
+
+In the first tab of this shiny app, I showed a time series of the top five medal producing countries and opted to show both "all medals" and "gold medals" for all five, plus allowing the viewer to zoom into different eras.
+
+In the second tab, I showed maps of how dominant various countries have been in the different disciplines, divided into "sprints," "distance," and "field," as well as the combination of all events. I also included a map that eliminates all USA medals since the high historical USA medal count made it difficult to spot other patterns.
+
+In the third tab, I included an interactive table with a search bar and sorting functions to allow the viewer to look for any event, year, or name they were interested in.
+
+```{r}
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
@@ -25,9 +31,12 @@ library(shinyWidgets)
 library(dplyr)
 library(readr)
 library(ggthemes)
+library(kableExtra)
 
 library(ggdendro)
 library(maps)
+
+library(DT)
 ```
 
 
@@ -123,7 +132,7 @@ ply_cumul <- plot_ly(medals7,
         color = nats,
         type = 'scatter',
         mode = 'lines',
-        width = 900, height = 700
+        width = 650, height = 600
         ) %>%
   layout(yaxis = list(title = "Cumulative Medals"))
 
@@ -133,7 +142,7 @@ ply_count <- plot_ly(medals7,
           color = nats,
           type = 'scatter',
           mode = 'markers',
-          width = 900, height = 700
+          width = 650, height = 600
           ) %>%
   layout(yaxis = list(title = "Medals per Games"))
 
@@ -164,7 +173,7 @@ ply_cumul_g <- plot_ly(medals7,
         color = nats,
         type = 'scatter',
         mode = 'lines',
-        width = 900, height = 700
+        width = 650, height = 600
         )
 
 ply_count_g <- plot_ly(medals7,
@@ -173,7 +182,7 @@ ply_count_g <- plot_ly(medals7,
           color = nats,
           type = 'scatter',
           mode = 'markers',
-          width = 900, height = 700
+          width = 650, height = 600
           )
 b <- list(
   text = "Gold Medals",
@@ -199,8 +208,7 @@ ply_stack_g <- subplot(list(ply_cumul_g, ply_count_g),
 all_ply_stack <- subplot(list(ply_stack, ply_stack_g),
                          titleY = TRUE) %>%
          layout(showlegend = FALSE)
-
-all_ply_stack
+#all_ply_stack
 ```
 
 
@@ -401,7 +409,129 @@ plot_nous <- plot_nous + geom_polygon(color = "black", size = 0.1) + theme_dendr
 
 ```
 
+```{r}
+medals8 <- medals[-c(156, 158, 160, 320, 322, 324, 1664, 1666, 1668, 1793, 1795, 1797),]
+medals8 <- subset(medals8, select = c(1, 2, 4, 5, 6, 7))
+medals8[1,]$Nationality <- "GBR"
 
+Country <- rep(NA, times = length(medals8$Nationality))
+medals8 <- cbind(medals8, Country)
+
+#adding full country name for easier search
+medals8[medals8$Nationality == "EUA",]$Country <- "United Team of Germany"
+medals8[medals8$Nationality == "GDR",]$Country <- "East Germany"
+medals8[medals8$Nationality == "FRG",]$Country <- "West Germany"
+medals8[medals8$Nationality == "URS",]$Country <- "USSR"
+medals8[medals8$Nationality == "GBR",]$Country <- "Great Britain"
+medals8[medals8$Nationality == "KEN",]$Country <- "Kenya"
+medals8[medals8$Nationality == "ETH",]$Country <- "Ethiopia"
+medals8[medals8$Nationality == "MAR",]$Country <- "Morocco"
+medals8[medals8$Nationality == "ITA",]$Country <- "Italy"
+medals8[medals8$Nationality == "FIN",]$Country <- "Finland"
+medals8[medals8$Nationality == "POR",]$Country <- "Portugal"
+medals8[medals8$Nationality == "TUN",]$Country <- "Tunisia"
+medals8[medals8$Nationality == "RUS",]$Country <- "Russia"
+medals8[medals8$Nationality == "GER",]$Country <- "Germany"
+medals8[medals8$Nationality == "AUS",]$Country <- "Australia"
+medals8[medals8$Nationality == "TCH",]$Country <- "Czechoslovakia"
+medals8[medals8$Nationality == "FRA",]$Country <- "France"
+medals8[medals8$Nationality == "SWE",]$Country <- "Sweden"
+medals8[medals8$Nationality == "USA",]$Country <- "USA"
+medals8[medals8$Nationality == "ERI",]$Country <- "Eritrea"
+medals8[medals8$Nationality == "BEL",]$Country <- "Belgium"
+medals8[medals8$Nationality == "HUN",]$Country <- "Hungary"
+medals8[medals8$Nationality == "POL",]$Country <- "Poland"
+medals8[medals8$Nationality == "JAM",]$Country <- "Jamaica"
+medals8[medals8$Nationality == "CAN",]$Country <- "Canada"
+medals8[medals8$Nationality == "TTO",]$Country <- "Trinidad and Tobago"
+medals8[medals8$Nationality == "BAR",]$Country <- "Barbados"
+medals8[medals8$Nationality == "NAM",]$Country <- "Namibia"
+medals8[medals8$Nationality == "NED",]$Country <- "Netherlands"
+medals8[medals8$Nationality == "RSA",]$Country <- "South Africa"
+medals8[medals8$Nationality == "CUB",]$Country <- "Cuba"
+medals8[medals8$Nationality == "BUL",]$Country <- "Bulgaria"
+medals8[medals8$Nationality == "PAN",]$Country <- "Panama"
+medals8[medals8$Nationality == "NZL",]$Country <- "New Zealand"
+medals8[medals8$Nationality == "ESP",]$Country <- "Spain"
+medals8[medals8$Nationality == "CHN",]$Country <- "China"
+medals8[medals8$Nationality == "ALG",]$Country <- "Algeria"
+medals8[medals8$Nationality == "QAT",]$Country <- "Qatar"
+medals8[medals8$Nationality == "LUX",]$Country <- "Luxembourg"
+medals8[medals8$Nationality == "IRL",]$Country <- "Ireland"
+medals8[medals8$Nationality == "SUI",]$Country <- "Switzerland"
+medals8[medals8$Nationality == "GRE",]$Country <- "Greece"
+medals8[medals8$Nationality == "IND",]$Country <- "India"
+medals8[medals8$Nationality == "ECU",]$Country <- "Ecuador"
+medals8[medals8$Nationality == "MEX",]$Country <- "Mexico"
+medals8[medals8$Nationality == "GUA",]$Country <- "Guatemala"
+medals8[medals8$Nationality == "TAN",]$Country <- "Tanzania"
+medals8[medals8$Nationality == "NOR",]$Country <- "Norway"
+medals8[medals8$Nationality == "TUR",]$Country <- "Turkey"
+medals8[medals8$Nationality == "KSA",]$Country <- "Saudi Arabia"
+medals8[medals8$Nationality == "PHI",]$Country <- "Philippines"
+medals8[medals8$Nationality == "DOM",]$Country <- "Dominican Republic"
+medals8[medals8$Nationality == "PUR",]$Country <- "Puerto Rico"
+medals8[medals8$Nationality == "ZAM",]$Country <- "Zambia"
+medals8[medals8$Nationality == "UGA",]$Country <- "Uganda"
+medals8[medals8$Nationality == "SRI",]$Country <- "Sri Lanka"
+medals8[medals8$Nationality == "GRN",]$Country <- "Grenada"
+medals8[medals8$Nationality == "CIV",]$Country <- "Ivory Coast"
+medals8[medals8$Nationality == "DEN",]$Country <- "Denmark"
+medals8[medals8$Nationality == "JPN",]$Country <- "Japan"
+medals8[medals8$Nationality == "BRA",]$Country <- "Brazil"
+medals8[medals8$Nationality == "NGR",]$Country <- "Niger"
+medals8[medals8$Nationality == "BWI",]$Country <- "British West Indies"
+medals8[medals8$Nationality == "BDI",]$Country <- "Burundi"
+medals8[medals8$Nationality == "SVK",]$Country <- "Slovakia"
+medals8[medals8$Nationality == "LAT",]$Country <- "Latvia"
+medals8[medals8$Nationality == "EUN",]$Country <- "Former Soviet Union"
+medals8[medals8$Nationality == "SUD",]$Country <- "Sudan"
+medals8[medals8$Nationality == "BOT",]$Country <- "Botswana"
+medals8[medals8$Nationality == "BLR",]$Country <- "Belarus"
+medals8[medals8$Nationality == "EST",]$Country <- "Estonia"
+medals8[medals8$Nationality == "CZE",]$Country <- "Czech Republic"
+medals8[medals8$Nationality == "TPE",]$Country <- "Taiwan"
+medals8[medals8$Nationality == "KAZ",]$Country <- "Kazakhstan"
+medals8[medals8$Nationality == "LTU",]$Country <- "Lithuania"
+medals8[medals8$Nationality == "IRI",]$Country <- "Iran"
+medals8[medals8$Nationality == "TJK",]$Country <- "Tajikistan"
+medals8[medals8$Nationality == "SLO",]$Country <- "Slovenia"
+medals8[medals8$Nationality == "UKR",]$Country <- "Ukraine"
+medals8[medals8$Nationality == "ROU",]$Country <- "Romania"
+medals8[medals8$Nationality == "HAI",]$Country <- "Haiti"
+medals8[medals8$Nationality == "KOR",]$Country <- "South Korea"
+medals8[medals8$Nationality == "ARG",]$Country <- "Argentina"
+medals8[medals8$Nationality == "CHI",]$Country <- "Chile"
+medals8[medals8$Nationality == "DJI",]$Country <- "Djibouti"
+medals8[medals8$Nationality == "YUG",]$Country <- "Yugoslavia"
+medals8[medals8$Nationality == "VEN",]$Country <- "Venezuela"
+medals8[medals8$Nationality == "BRN",]$Country <- "Bahrain"
+medals8[medals8$Nationality == "AUT",]$Country <- "Austria"
+medals8[medals8$Nationality == "COL",]$Country <- "Columbia"
+medals8[medals8$Nationality == "MOZ",]$Country <- "Mozambique"
+medals8[medals8$Nationality == "CRO",]$Country <- "Croatia"
+medals8[medals8$Nationality == "SYR",]$Country <- "Syria"
+medals8[medals8$Nationality == "SRB",]$Country <- "Serbia"
+medals8[medals8$Nationality == "ISL",]$Country <- "Iceland"
+medals8[medals8$Nationality == "CMR",]$Country <- "Cameroon"
+medals8[medals8$Nationality == "BAH",]$Country <- "Bahamas"
+
+medals8$Medal <- factor(medals8$Medal, levels = c('G', 'S', 'B'))
+medals8  <- medals8 %>%
+  select(Event, Year, Nationality, Country, Medal, Name)
+medals8 <- medals8[order(-medals8$Year),]
+
+table_medals <- DT::datatable(medals8, extensions = "Responsive")
+#table_medals
+
+medals9 <- subset(medals8, select = c(2, 1, 5, 4))
+medals9 <- medals9[order(medals9["Year"], medals9["Event"], medals9["Medal"]),]
+
+kbl1 <- kbl(medals9, row.names = FALSE) %>%
+           kable_paper(lightable_options = "hover", full_width = FALSE) %>%
+           scroll_box(width = "50%", height = "300px")
+#kbl1
+```
 
 
 ```{r}
@@ -414,26 +544,32 @@ ui <- dashboardPage(
   
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Top Five Historic Countries", tabname = "top_five"),
-      menuItem("Maps", tabname = "maps")
+      menuItem("Top Five Historic Countries", tabName = "top_five"),
+      menuItem("Maps", tabName = "maps"),
+      menuItem("Table", tabName = "table_full")
     )
   ),
   
   dashboardBody(
     tabItems(
       #page 1
-      tabItem(tabName = "top_five",
+      tabItem("top_five",
           box(plotlyOutput("all_ply_stack"), width = 500)
-              
      ),
+     
       #page 2
       tabItem("maps",
-          box(plotOutput("plot_all"), width = 500),
-          box(plotOutput("plot_dist"), width = 500),
-          box(plotOutput("plot_sprint"), width = 500),
-          box(plotOutput("plot_field"), width = 500),
-          box(plotOutput("plot_nous"), width = 500)
-      )
+          box(plotOutput("plot_all"), width = 300),
+          box(plotOutput("plot_dist"), width = 300),
+          box(plotOutput("plot_sprint"), width = 300),
+          box(plotOutput("plot_field"), width = 300),
+          box(plotOutput("plot_nous"), width = 300)
+      ),
+     
+     #page 3
+     tabItem("table_full",
+         box(DTOutput("table_medals"), width = 500)
+     )
     )
   )
 )
@@ -441,9 +577,11 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
+  #time series plots
   output$all_ply_stack <- renderPlotly({
     all_ply_stack
   })
+  
   
   #medal maps
   output$plot_all <- renderPlot({
@@ -461,8 +599,18 @@ server <- function(input, output) {
   output$plot_nous <- renderPlot({
     plot_nous
   })
+  
+  #table
+ output$table_medals <- renderDT({
+    table_medals
+  })
+  
 }
 
 shinyApp(ui, server)
+```
+
+```{r}
+rsconnect::deployApp('~/Desktop/Grad School/566 Data Visualization/HW/HW5_Ellis_Jacob/ShinyUpload/')
 ```
 
